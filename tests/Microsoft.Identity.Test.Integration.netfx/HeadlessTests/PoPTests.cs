@@ -144,7 +144,7 @@ namespace Microsoft.Identity.Test.Integration.HeadlessTests
             Assert.AreEqual("Bearer", result.TokenType);
             Assert.AreEqual(
                 2,
-                (cca as ConfidentialClientApplication).AppTokenCacheInternal.Accessor.GetAllAccessTokens().Count());
+                (cca as ConfidentialClientApplication).AppTokenCacheInternal.Accessor.GetAllAccessTokens().Count);
         }
 
         private async Task MultipleKeys_Async()
@@ -542,7 +542,7 @@ namespace Microsoft.Identity.Test.Integration.HeadlessTests
 
         private static RsaSecurityKey CreateRsaSecurityKey()
         {
-#if NET_FX
+#if NETFRAMEWORK
             RSA rsa = RSA.Create(2048);
 #else
             RSA rsa = new RSACryptoServiceProvider(2048);

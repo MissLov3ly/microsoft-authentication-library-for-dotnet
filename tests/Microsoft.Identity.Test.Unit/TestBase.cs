@@ -10,6 +10,7 @@ using Microsoft.Identity.Client.Internal.Broker;
 using Microsoft.Identity.Client.OAuth2;
 using Microsoft.Identity.Test.Common;
 using Microsoft.Identity.Test.Common.Core.Mocks;
+using Microsoft.IdentityModel.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Microsoft.Identity.Test.Unit
@@ -20,6 +21,7 @@ namespace Microsoft.Identity.Test.Unit
         [AssemblyInitialize]
         public static void AssemblyInit(TestContext context)
         {
+            IdentityModelEventSource.ShowPII = true;
             EnableFileTracingOnEnvVar();
             Trace.WriteLine("Test run started");
         }
@@ -34,7 +36,7 @@ namespace Microsoft.Identity.Test.Unit
         [TestInitialize]
         public virtual void TestInitialize()
         {
-#if DESKTOP
+#if NETFRAMEWORK
             Trace.WriteLine("Framework: .NET FX");
 #elif NET6_0
             Trace.WriteLine("Framework: .NET 6");

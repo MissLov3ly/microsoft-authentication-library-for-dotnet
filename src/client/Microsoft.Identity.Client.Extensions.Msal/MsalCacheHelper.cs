@@ -75,7 +75,7 @@ namespace Microsoft.Identity.Client.Extensions.Msal
         /// Allows clients to listen for cache updates originating from disk.
         /// </summary>
         /// <remarks>
-        /// This event does not fire when the application is built against Mone framework (e.g. Xamarin.Mac), but it does fire on .Net Core on all 3 operating systems.
+        /// This event does not fire when the application is built against Mono framework (e.g. Xamarin.Mac), but it does fire on .Net Core on all 3 operating systems.
         /// </remarks>
         public event EventHandler<CacheChangedEventArgs> CacheChanged
         {
@@ -302,7 +302,7 @@ namespace Microsoft.Identity.Client.Extensions.Msal
         /// Registers a token cache to synchronize with the persistent storage.
         /// </summary>
         /// <param name="tokenCache">The application token cache, typically referenced as <see cref="IClientApplicationBase.UserTokenCache"/></param>
-        /// <remarks>Call <see cref="UnregisterCache(ITokenCache)"/> to have the given token cache stop syncronizing.</remarks>
+        /// <remarks>Call <see cref="UnregisterCache(ITokenCache)"/> to have the given token cache stop synchronizing.</remarks>
         public void RegisterCache(ITokenCache tokenCache)
         {
             if (tokenCache == null)
@@ -405,7 +405,7 @@ namespace Microsoft.Identity.Client.Extensions.Msal
             CacheLock = CreateCrossPlatLock(_storageCreationProperties);
 
             _logger.LogInformation($"Before access, the store has changed");
-            byte[] cachedStoreData = null;
+            byte[] cachedStoreData;
             try
             {
                 cachedStoreData = CacheStore.ReadData();
@@ -414,7 +414,6 @@ namespace Microsoft.Identity.Client.Extensions.Msal
             {
                 _logger.LogError($"Could not read the token cache. Ignoring. See previous error message.");
                 return;
-
             }
             _logger.LogInformation($"Read '{cachedStoreData?.Length}' bytes from storage");
 
@@ -446,11 +445,11 @@ namespace Microsoft.Identity.Client.Extensions.Msal
             try
             {
                 _logger.LogInformation($"After access");
-                byte[] data = null;
                 // if the access operation resulted in a cache update
                 if (args.HasStateChanged)
                 {
                     _logger.LogInformation($"After access, cache in memory HasChanged");
+                    byte[] data;
                     try
                     {
                         data = args.TokenCache.SerializeMsalV3();

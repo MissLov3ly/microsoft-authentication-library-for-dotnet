@@ -15,6 +15,7 @@ using Microsoft.Identity.Client;
 using Microsoft.Identity.Client.Core;
 using Microsoft.Identity.Client.Http;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NSubstitute;
 
 namespace Microsoft.Identity.Test.Common.Core.Mocks
 {
@@ -54,7 +55,7 @@ namespace Microsoft.Identity.Test.Common.Core.Mocks
 #pragma warning restore CS0618 // Type or member is obsolete
             {
                 string remainingMocks = string.Join(" ",
-                    _httpMessageHandlerQueue.Select(m => GetExpectedUrlFromHandler(m)));
+                    _httpMessageHandlerQueue.Select(GetExpectedUrlFromHandler));
                 Assert.AreEqual(0, _httpMessageHandlerQueue.Count,
                     "All mocks should have been consumed. Remaining mocks are for: " + remainingMocks);
             }
@@ -70,6 +71,15 @@ namespace Microsoft.Identity.Test.Common.Core.Mocks
         }
 
         public int QueueSize => _httpMessageHandlerQueue.Count;
+
+        /// <summary>
+        /// For use only in tests that spin many threads. Not thread safe.
+        /// </summary>
+        public void ClearQueue()
+        {
+            while (_httpMessageHandlerQueue.TryDequeue(out _))
+                ;
+        }
 
         public long LastRequestDurationInMs => 3000;
 

@@ -44,7 +44,7 @@ namespace Microsoft.Identity.Test.Unit.CacheExtension
             int cacheChangedEventFired = 0;
 
             // expect this event to be fired twice
-            watcher.Changed += (sender, args) =>
+            watcher.Changed += (_, _) =>
             {
                 _logger.TraceInformation("Event fired!");
                 cacheChangedEventFired++;
@@ -57,7 +57,6 @@ namespace Microsoft.Identity.Test.Unit.CacheExtension
                 _logger.TraceInformation($"Touch once");
 
                 FileIOWithRetries.TouchFile(path, new TraceSourceLogger(_logger));
-                DateTime initialLastWriteTime = File.GetLastWriteTimeUtc(path);
                 Assert.IsTrue(File.Exists(path));
 
                 // LastWriteTime is not granular enough 

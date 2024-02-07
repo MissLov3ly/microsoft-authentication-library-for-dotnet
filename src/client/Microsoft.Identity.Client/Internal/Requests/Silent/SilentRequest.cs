@@ -85,15 +85,15 @@ namespace Microsoft.Identity.Client.Internal.Requests.Silent
             }
         }
 
-        internal new async Task<AuthenticationResult> CacheTokenResponseAndCreateAuthenticationResultAsync(MsalTokenResponse response)
+        internal new Task<AuthenticationResult> CacheTokenResponseAndCreateAuthenticationResultAsync(MsalTokenResponse response)
         {
-            return await base.CacheTokenResponseAndCreateAuthenticationResultAsync(response).ConfigureAwait(false);
+            return base.CacheTokenResponseAndCreateAuthenticationResultAsync(response);
         }
 
         //internal for test
-        internal async Task<AuthenticationResult> ExecuteTestAsync(CancellationToken cancellationToken)
+        internal Task<AuthenticationResult> ExecuteTestAsync(CancellationToken cancellationToken)
         {
-            return await ExecuteAsync(cancellationToken).ConfigureAwait(false);
+            return ExecuteAsync(cancellationToken);
         }
 
         private async Task UpdateRequestWithAccountAsync()
@@ -186,13 +186,7 @@ namespace Microsoft.Identity.Client.Internal.Requests.Silent
             AuthenticationRequestParameters.RequestContext.Logger.Error("Returned user identifiers do not match the sent user identifier");
 
             AuthenticationRequestParameters.RequestContext.Logger.ErrorPii(
-                string.Format(
-                    CultureInfo.InvariantCulture,
-                    "User identifier returned by AAD (uid:{0} utid:{1}) does not match the user identifier sent. (uid:{2} utid:{3})",
-                    fromServer.UniqueObjectIdentifier,
-                    fromServer.UniqueTenantIdentifier,
-                    AuthenticationRequestParameters.Account.HomeAccountId.ObjectId,
-                    AuthenticationRequestParameters.Account.HomeAccountId.TenantId),
+                $"User identifier returned by AAD (uid:{fromServer.UniqueObjectIdentifier} utid:{fromServer.UniqueTenantIdentifier}) does not match the user identifier sent. (uid:{AuthenticationRequestParameters.Account.HomeAccountId.ObjectId} utid:{AuthenticationRequestParameters.Account.HomeAccountId.TenantId})",
                 string.Empty);
 
             throw new MsalClientException(MsalError.UserMismatch, MsalErrorMessage.UserMismatchSaveToken);

@@ -360,7 +360,7 @@ namespace Microsoft.Identity.Test.Unit.PublicApiTests
                                                                             .BuildConcrete();
 
                 //Validate new default redirect uri
-#if DESKTOP || NET6_WIN
+#if NETFRAMEWORK || NET6_WIN
                 Assert.AreEqual(Constants.NativeClientRedirectUri, app.AppConfig.RedirectUri);
 #elif NET_CORE 
                 Assert.AreEqual(app.AppConfig.RedirectUri, "http://localhost");
@@ -513,7 +513,7 @@ namespace Microsoft.Identity.Test.Unit.PublicApiTests
 
                 var users = app.GetAccountsAsync().Result;
                 Assert.AreEqual(2, users.Count());
-                Assert.AreEqual(2, app.UserTokenCacheInternal.Accessor.GetAllAccessTokens().Count());
+                Assert.AreEqual(2, app.UserTokenCacheInternal.Accessor.GetAllAccessTokens().Count);
             }
         }
 
@@ -573,7 +573,7 @@ namespace Microsoft.Identity.Test.Unit.PublicApiTests
                 Assert.AreEqual(TestConstants.DisplayableId, result.Account.Username);
                 var users = app.GetAccountsAsync().Result;
                 Assert.AreEqual(2, users.Count());
-                Assert.AreEqual(2, app.UserTokenCacheInternal.Accessor.GetAllAccessTokens().Count());
+                Assert.AreEqual(2, app.UserTokenCacheInternal.Accessor.GetAllAccessTokens().Count);
             }
         }
 
@@ -873,7 +873,6 @@ namespace Microsoft.Identity.Test.Unit.PublicApiTests
             const string tenant1 = "72f988bf-86f1-41af-91ab-2d7cd011db47";
             const string tenant2 = "49f548d0-12b7-4169-a390-bb5304d24462";
             string tenantedAuthority1 = $"https://login.microsoftonline.com/{tenant1}/";
-            string tenantedAuthority2 = $"https://login.microsoftonline.com/{tenant2}/";
 
             using (var httpManager = new MockHttpManager())
             {
@@ -1046,7 +1045,7 @@ namespace Microsoft.Identity.Test.Unit.PublicApiTests
 
             var pcaBuilder = PublicClientApplicationBuilder
                 .Create(clientIdInFile)
-                .WithLogging((lvl, msg, pii) => Trace.WriteLine($"[{lvl}] {msg}"))
+                .WithLogging((lvl, msg, _) => Trace.WriteLine($"[{lvl}] {msg}"))
                 .WithHttpManager(httpManager);
 
             if (authority != null)
@@ -1161,7 +1160,7 @@ namespace Microsoft.Identity.Test.Unit.PublicApiTests
                .WithLoginHint("loginhint")
                .WithPrompt(Prompt.ForceLogin);
 
-#if DESKTOP
+#if NETFRAMEWORK
             interactiveBuilder = interactiveBuilder.WithUseEmbeddedWebView(true);
 #endif
             CheckBuilderCommonMethods(interactiveBuilder);
@@ -1173,8 +1172,8 @@ namespace Microsoft.Identity.Test.Unit.PublicApiTests
             var usernamePasswordBuilder = app.AcquireTokenByUsernamePassword(TestConstants.s_scope, "upn@live.com", "");
             CheckBuilderCommonMethods(usernamePasswordBuilder);
 
-            var deviceCodeBuilder = app.AcquireTokenWithDeviceCode(TestConstants.s_scope, result => Task.FromResult(0))
-               .WithDeviceCodeResultCallback(result => Task.FromResult(0));
+            var deviceCodeBuilder = app.AcquireTokenWithDeviceCode(TestConstants.s_scope, _ => Task.FromResult(0))
+               .WithDeviceCodeResultCallback(_ => Task.FromResult(0));
             CheckBuilderCommonMethods(deviceCodeBuilder);
 
             var silentBuilder = app.AcquireTokenSilent(TestConstants.s_scope, TestConstants.s_user)

@@ -139,6 +139,8 @@ namespace Microsoft.Identity.Client.OAuth2
                     () => "[TokenClient] Before adding the client assertion / secret");
 
                 var tokenEndpoint = await _requestParams.Authority.GetTokenEndpointAsync(_requestParams.RequestContext).ConfigureAwait(false);
+
+                bool useSha2 = _requestParams.AuthorityManager.Authority.AuthorityInfo.IsSha2CredentialSupported;
                 await _serviceBundle.Config.ClientCredential.AddConfidentialClientParametersAsync(
                     _oAuth2Client,
                     _requestParams.RequestContext.Logger,
@@ -146,6 +148,7 @@ namespace Microsoft.Identity.Client.OAuth2
                     _requestParams.AppConfig.ClientId,
                     tokenEndpoint,
                     _requestParams.SendX5C,
+                    useSha2,
                     cancellationToken).ConfigureAwait(false);
 
                 _requestParams.RequestContext.Logger.Verbose(
@@ -279,11 +282,10 @@ namespace Microsoft.Identity.Client.OAuth2
 
                 if (ex.StatusCode == (int)HttpStatusCode.Unauthorized)
                 {
-                    string responseHeader = string.Empty;
                     var isChallenge = _serviceBundle.DeviceAuthManager.TryCreateDeviceAuthChallengeResponse(
                         ex.Headers,
                         new Uri(tokenEndpoint), // do not add query params to PKeyAuth https://github.com/AzureAD/microsoft-authentication-library-for-dotnet/issues/2359
-                        out responseHeader);
+                        out string responseHeader);
                     if (isChallenge)
                     {
                         //Injecting PKeyAuth response here and replaying request to attempt device auth
@@ -306,13 +308,10 @@ namespace Microsoft.Identity.Client.OAuth2
 
         private static string GetDefaultScopes(ISet<string> inputScope)
         {
-            // OAuth spec states that scopes are case sensitive, but 
-            // merge the reserved scopes in a case insensitive way, to 
+            // OAuth spec states that scopes are case sensitive, but
+            // merge the reserved scopes in a case insensitive way, to
             // avoid sending things like "openid OpenId" (note that EVO is tolerant of this)
-            SortedSet<string> set = new SortedSet<string>(
-                inputScope.ToArray(),
-                StringComparer.OrdinalIgnoreCase);
-
+            var set = new SortedSet<string>(inputScope, StringComparer.OrdinalIgnoreCase);
             set.UnionWith(OAuth2Value.ReservedScopes);
             return set.AsSingleString();
         }

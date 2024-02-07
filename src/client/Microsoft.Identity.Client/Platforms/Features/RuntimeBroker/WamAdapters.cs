@@ -58,7 +58,7 @@ namespace Microsoft.Identity.Client.Platforms.Features.RuntimeBroker
             AuthenticationRequestParameters authenticationRequestParameters,
             ILoggerAdapter logger)
         {
-            MsalServiceException serviceException = null;
+            MsalServiceException serviceException;
             string internalErrorCode = authResult.Error.Tag.ToString(CultureInfo.InvariantCulture);
             long errorCode = authResult.Error.ErrorCode;
             string errorMessage;
@@ -206,7 +206,7 @@ namespace Microsoft.Identity.Client.Platforms.Features.RuntimeBroker
                 { MsalException.BrokerErrorTag, $"0x{runtimeAuthResult?.Error.Tag:X}" },
                 { MsalException.BrokerErrorStatus, runtimeAuthResult?.Error.Status.ToString() },
                 { MsalException.BrokerErrorCode, (runtimeAuthResult?.Error.ErrorCode).ToString() },
-                { MsalException.BrokerTelemetry, (runtimeAuthResult?.TelemetryData).ToString() },
+                { MsalException.BrokerTelemetry, runtimeAuthResult?.TelemetryData },
             };
 
             exception.AdditionalExceptionData = result;
@@ -265,11 +265,9 @@ namespace Microsoft.Identity.Client.Platforms.Features.RuntimeBroker
                 AuthenticationRequestParameters authenticationRequestParameters,
                 ILoggerAdapter logger, string errorMessage = null)
         {
-            MsalTokenResponse msalTokenResponse = null;
-
             if (TokenReceivedFromWam(authResult, logger))
             {
-                msalTokenResponse = ParseRuntimeResponse(authResult, authenticationRequestParameters, logger);
+                MsalTokenResponse msalTokenResponse = ParseRuntimeResponse(authResult, authenticationRequestParameters, logger);
                 logger.Verbose(() => "[RuntimeBroker] Successfully retrieved token.");
                 return msalTokenResponse;
             }
@@ -335,7 +333,7 @@ namespace Microsoft.Identity.Client.Platforms.Features.RuntimeBroker
 
                 // workaround for bug https://identitydivision.visualstudio.com/Engineering/_workitems/edit/2047936
                 // i.e. environment is not set correctly in multi-cloud apps and home_environment is not set
-                if (authenticationRequestParameters.AppConfig.MultiCloudSupportEnabled && string.IsNullOrEmpty(authorityUrl))
+                if (authenticationRequestParameters.AppConfig.MultiCloudSupportEnabled)
                 {
                     IdToken idToken = IdToken.Parse(authResult.RawIdToken);
                     authorityUrl = idToken.ClaimsPrincipal.FindFirst("iss")?.Value;
@@ -353,7 +351,7 @@ namespace Microsoft.Identity.Client.Platforms.Features.RuntimeBroker
                     CorrelationId = correlationId,
                     Scope = authResult.GrantedScopes,
                     ExpiresIn = (long)(DateTime.SpecifyKind(authResult.ExpiresOn, DateTimeKind.Utc) - DateTimeOffset.UtcNow).TotalSeconds,
-                    ClientInfo = authResult.Account.ClientInfo.ToString(),
+                    ClientInfo = authResult.Account.ClientInfo,
                     TokenType = authResult.IsPopAuthorization ? Constants.PoPAuthHeaderPrefix : BrokerResponseConst.Bearer,
                     WamAccountId = authResult.Account.AccountId,
                     TokenSource = TokenSource.Broker

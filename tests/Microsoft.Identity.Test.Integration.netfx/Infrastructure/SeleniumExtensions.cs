@@ -55,7 +55,7 @@ namespace Microsoft.Identity.Test.Integration.Infrastructure
         {
             Screenshot ss = ((ITakesScreenshot)driver).GetScreenshot();
             string picName = name + s_picNumber++ + ".png";
-#if DESKTOP // Can't attach a file on netcore because mstest doesn't support it
+#if NETFRAMEWORK // Can't attach a file on netcore because mstest doesn't support it
             string failurePicturePath = Path.Combine(testContext.TestResultsDirectory, picName);
 #else
             string failurePicturePath = Path.Combine(Directory.GetCurrentDirectory(), picName);
@@ -64,7 +64,7 @@ namespace Microsoft.Identity.Test.Integration.Infrastructure
             Trace.WriteLine($"Saving picture to {failurePicturePath}");
             ss.SaveAsFile(failurePicturePath, ScreenshotImageFormat.Png);
 
-#if DESKTOP // Can't attach a file to the logs on netcore because mstest doesn't support it
+#if NETFRAMEWORK // Can't attach a file to the logs on netcore because mstest doesn't support it
             testContext.AddResultFile(failurePicturePath);
 #endif
         }
@@ -290,11 +290,11 @@ namespace Microsoft.Identity.Test.Integration.Infrastructure
                     seleniumDriver.Navigate().GoToUrl(deviceCodeResult.VerificationUrl);
                     seleniumDriver
                         // Device Code Flow web ui is undergoing A/B testing and is sometimes different - use 2 IDs
-                        .FindElement(SeleniumExtensions.ByIds("otc", codeId))
+                        .FindElement(ByIds("otc", codeId))
                         .SendKeys(deviceCodeResult.UserCode);
 
                     IWebElement continueBtn = seleniumDriver.WaitForElementToBeVisibleAndEnabled(
-                        SeleniumExtensions.ByIds(fields.AADSignInButtonId, continueId));
+                        ByIds(fields.AADSignInButtonId, continueId));
                     continueBtn?.Click();
 
                     seleniumDriver.PerformLogin(user, Prompt.SelectAccount, false, isAdfs);

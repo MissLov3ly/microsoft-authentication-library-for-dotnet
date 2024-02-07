@@ -54,7 +54,7 @@ namespace Microsoft.Identity.Test.Unit.PublicApiTests
                     .ExecuteAsync(CancellationToken.None)
                     .ConfigureAwait(false);
 
-                // Assert token is proactivly refreshed
+                // Assert token is proactively refreshed
                 Assert.IsNotNull(result);
                 Assert.IsTrue(result.AuthenticationResultMetadata.CacheRefreshReason == CacheRefreshReason.ProactivelyRefreshed);
                 Assert.IsTrue(result.AuthenticationResultMetadata.RefreshOn == refreshOn);
@@ -241,11 +241,6 @@ namespace Microsoft.Identity.Test.Unit.PublicApiTests
             var at = TokenCacheHelper.CreateAccessTokenItem();
             var refreshOnFromCache = DateTimeOffset.UtcNow - TimeSpan.FromMinutes(10);
             at = at.WithRefreshOn(refreshOnFromCache);
-
-            Func<Task<AuthenticationResult>> fetchAction = () =>
-            {
-                return Task.FromResult<AuthenticationResult>(null);
-            };
 
             List<DateTimeOffset?> refreshOnWithJitterList = new List<DateTimeOffset?>();
             for (int i = 1; i <= 10; i++)

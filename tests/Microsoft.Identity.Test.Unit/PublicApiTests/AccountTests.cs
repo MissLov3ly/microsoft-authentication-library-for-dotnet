@@ -61,7 +61,7 @@ namespace Microsoft.Identity.Test.Unit.PublicApiTests
         public async Task CallsToPublicCloudDoNotHitTheNetworkAsync()
         {
             IMsalHttpClientFactory factoryThatThrows = Substitute.For<IMsalHttpClientFactory>();
-            factoryThatThrows.When(x => x.GetHttpClient()).Do(x => { Assert.Fail("A network call is being performed"); });
+            factoryThatThrows.When(x => x.GetHttpClient()).Do(_ => { Assert.Fail("A network call is being performed"); });
 
             // Arrange
             PublicClientApplication pca = PublicClientApplicationBuilder
@@ -173,7 +173,7 @@ namespace Microsoft.Identity.Test.Unit.PublicApiTests
         {
             // if a network call is made, this test will fail
             IMsalHttpClientFactory factoryThatThrows = Substitute.For<IMsalHttpClientFactory>();
-            factoryThatThrows.When(x => x.GetHttpClient()).Do(x => { Assert.Fail("A network call is being performed"); });
+            factoryThatThrows.When(x => x.GetHttpClient()).Do(_ => { Assert.Fail("A network call is being performed"); });
 
             var pcaDe = PublicClientApplicationBuilder
               .Create(ClientIdInFile)
@@ -271,7 +271,7 @@ namespace Microsoft.Identity.Test.Unit.PublicApiTests
 
                 app.UserTokenCacheInternal.Accessor.SaveAccount(accountCacheItem);
 
-                Assert.AreEqual(2, app.UserTokenCacheInternal.Accessor.GetAllRefreshTokens().Count());
+                Assert.AreEqual(2, app.UserTokenCacheInternal.Accessor.GetAllRefreshTokens().Count);
                 accounts = app.GetAccountsAsync().Result;
                 Assert.IsNotNull(accounts);
                 Assert.AreEqual(2, accounts.Count()); // scoped by env
@@ -289,7 +289,7 @@ namespace Microsoft.Identity.Test.Unit.PublicApiTests
                     homeAccountId3);
 
                 app.UserTokenCacheInternal.Accessor.SaveRefreshToken(rtItem);
-                Assert.AreEqual(3, app.UserTokenCacheInternal.Accessor.GetAllRefreshTokens().Count());
+                Assert.AreEqual(3, app.UserTokenCacheInternal.Accessor.GetAllRefreshTokens().Count);
                 accounts = app.GetAccountsAsync().Result;
                 Assert.IsNotNull(accounts);
                 Assert.AreEqual(2, accounts.Count());
@@ -366,8 +366,8 @@ namespace Microsoft.Identity.Test.Unit.PublicApiTests
                 app.RemoveAsync(user).Wait();
             }
 
-            Assert.AreEqual(0, app.UserTokenCacheInternal.Accessor.GetAllAccessTokens().Count());
-            Assert.AreEqual(0, app.UserTokenCacheInternal.Accessor.GetAllRefreshTokens().Count());
+            Assert.AreEqual(0, app.UserTokenCacheInternal.Accessor.GetAllAccessTokens().Count);
+            Assert.AreEqual(0, app.UserTokenCacheInternal.Accessor.GetAllRefreshTokens().Count);
         }
 
         [TestMethod]
